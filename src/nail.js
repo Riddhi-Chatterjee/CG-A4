@@ -18,7 +18,7 @@ export class Nail
         this.head_material = new THREE.MeshPhongMaterial({map: this.head_texture});
         this.head_geometry = new THREE.CylinderGeometry(head_radius, head_radius, head_length, 40, 40);
         this.head = new THREE.Mesh(this.head_geometry, this.head_material);
-        this.head.position.y = axis_length/2;
+        this.head.position.y = axis_length/2 + head_length/2;
         this.axis.add(this.head);
     }
 }

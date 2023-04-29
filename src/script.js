@@ -75,7 +75,7 @@ const pointLightHelper2 = new THREE.PointLightHelper( light2, sphereSize );
 pointLightHelper2.color = new THREE.Color(0xffffff);
 //scene.add( pointLightHelper2 );
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.37);
 scene.add(ambientLight);
 
 
@@ -165,6 +165,7 @@ const tick = () => {
     //torusMesh.rotation.y = elapsedTime
     //sphereMesh.rotation.z = elapsedTime
     //nail.axis.rotation.y = elapsedTime
+    //setup.nail4.rotation.y -= 0.01
 
     // Update controls
     if(mouseCntrl.controlsEnabled)
