@@ -2,6 +2,7 @@ import "./style.css";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as dat from 'dat.gui'
+import { Nail } from "./nail.js";
 
 // http://www.realtimerendering.com/erich/udacity/exercises/unit3_specular_demo.html
 
@@ -100,26 +101,30 @@ controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 controls.enabled = true;
 
-// const AxesHelper = new THREE.AxesHelper();
-// scene.add(AxesHelper);
+const AxesHelper = new THREE.AxesHelper();
+//scene.add(AxesHelper);
 
 // load a torus geometry
 const torusmaterial = new THREE.MeshPhongMaterial();
 const torusgeometry = new THREE.TorusGeometry( 1, 0.5, 16, 100 );
 var  torusMesh = new THREE.Mesh(torusgeometry, torusmaterial);
-torusMesh.position.set(0,0,0);
+torusMesh.position.set(1,1,0);
 torusMesh.scale.set(0.3,0.3,0.3);
 scene.add(torusMesh);
 
 //load a sphere:
 
-const texture = new THREE.TextureLoader().load('/textures/rope.jpg'); 
-const spherematerial = new THREE.MeshPhongMaterial( { map:texture } );
-const spheregeometry = new THREE.CylinderGeometry(0.03, 0.03 , 5, 100, 100);
-const sphereMesh = new THREE.Mesh(spheregeometry, spherematerial);
-sphereMesh.position.set(5,0,0);
-sphereMesh.scale.set(0.3,0.3,0.3);
-torusMesh.add(sphereMesh)
+//const texture = new THREE.TextureLoader().load('/textures/sphere.jpg'); 
+//const spherematerial = new THREE.MeshPhongMaterial( { map:texture } );
+//const spheregeometry = new THREE.CylinderGeometry(0.7, 0.7, 4, 100, 100);
+//const sphereMesh = new THREE.Mesh(spheregeometry, spherematerial);
+//sphereMesh.position.set(0,0,0);
+//sphereMesh.scale.set(0.3,0.3,0.3);
+//sphereMesh.add(AxesHelper)
+//scene.add(sphereMesh)
+
+const nail = new Nail([0.0,0.0,0.0], 0.01, 0.015, 0.02, 0.005, [1.0,1.0,1.0])
+scene.add(nail)
 
 
 //Renderer:
@@ -155,6 +160,8 @@ const tick = () => {
     lastElapsedTime = elapsedTime;
 
     //torusMesh.rotation.y = elapsedTime
+    //sphereMesh.rotation.z = elapsedTime
+    //nail.rotation.y = elapsedTime
 
     // Update controls
     if(mouseCntrl.controlsEnabled)
