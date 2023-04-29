@@ -2,6 +2,7 @@ import "./style.css";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as dat from 'dat.gui'
+import { Setup } from "./setup.js";
 import { Nail } from "./nail.js";
 
 // http://www.realtimerendering.com/erich/udacity/exercises/unit3_specular_demo.html
@@ -44,7 +45,7 @@ scene.add(camera);
 
 let bboxSphereLight, bboxTeapotLight;
 
-const light1 = new THREE.PointLight( 0xffffff, 1, 100 );
+const light1 = new THREE.PointLight( 0xffffff, 0.3, 100 );
 light1.position.set( 1, 1.25 ,0 );
 // light1.power = 10000;
 // light1.distance = 20;
@@ -60,7 +61,7 @@ pointLightHelper1.color = new THREE.Color(0xffffff);
 //scene.add( pointLightHelper1 );
 
 
-const light2 = new THREE.PointLight( 0xffffff, 1, 100 );
+const light2 = new THREE.PointLight( 0xffffff, 0.3, 100 );
 light2.position.set( -1, 1.25, 0 );
 // light2.power = 10000;
 // light2.distance = 20;
@@ -74,8 +75,7 @@ const pointLightHelper2 = new THREE.PointLightHelper( light2, sphereSize );
 pointLightHelper2.color = new THREE.Color(0xffffff);
 //scene.add( pointLightHelper2 );
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-ambientLight.intensity = 0;
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
 scene.add(ambientLight);
 
 
@@ -105,12 +105,12 @@ const AxesHelper = new THREE.AxesHelper();
 //scene.add(AxesHelper);
 
 // load a torus geometry
-const torusmaterial = new THREE.MeshPhongMaterial();
-const torusgeometry = new THREE.TorusGeometry( 1, 0.5, 16, 100 );
-var  torusMesh = new THREE.Mesh(torusgeometry, torusmaterial);
-torusMesh.position.set(1,1,0);
-torusMesh.scale.set(0.3,0.3,0.3);
-scene.add(torusMesh);
+//const torusmaterial = new THREE.MeshPhongMaterial();
+//const torusgeometry = new THREE.TorusGeometry( 1, 0.5, 16, 100 );
+//var  torusMesh = new THREE.Mesh(torusgeometry, torusmaterial);
+//torusMesh.position.set(1,1,0);
+//torusMesh.scale.set(0.3,0.3,0.3);
+//scene.add(torusMesh);
 
 //load a sphere:
 
@@ -123,8 +123,11 @@ scene.add(torusMesh);
 //sphereMesh.add(AxesHelper)
 //scene.add(sphereMesh)
 
-const nail = new Nail([0.0,0.0,0.0], 0.01, 0.015, 0.02, 0.005, [1.0,1.0,1.0])
-scene.add(nail)
+//const nail = new Nail([0.0,0.0,0.0], 0.01, 0.015, 0.02, 0.005, [1.0,1.0,1.0])
+//scene.add(nail.axis)
+
+const setup = new Setup();
+scene.add(setup.animationSetup)
 
 
 //Renderer:
@@ -161,7 +164,7 @@ const tick = () => {
 
     //torusMesh.rotation.y = elapsedTime
     //sphereMesh.rotation.z = elapsedTime
-    //nail.rotation.y = elapsedTime
+    //nail.axis.rotation.y = elapsedTime
 
     // Update controls
     if(mouseCntrl.controlsEnabled)

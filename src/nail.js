@@ -20,7 +20,5 @@ export class Nail
         this.head = new THREE.Mesh(this.head_geometry, this.head_material);
         this.head.position.y = axis_length/2;
         this.axis.add(this.head);
-
-        return this.axis;
     }
 }
