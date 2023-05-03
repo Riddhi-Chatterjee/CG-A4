@@ -130,6 +130,18 @@ const setup = new Setup();
 scene.add(setup.animationSetup)
 
 
+
+
+var startAnimation = false
+
+document.addEventListener("keydown", event => {
+  if (event.key == "s") //Start the animation
+  {
+    startAnimation = true
+  }
+})
+
+
 //Renderer:
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
@@ -157,6 +169,12 @@ renderer.physicallyBasedShading = true;
 const clock = new THREE.Clock();
 let lastElapsedTime = 0;
 
+var nail1_init_y_rotation = setup.nail1.rotation.y
+var nail1_init_ang = 0
+var nail1_init_ang_v = 0.001
+var nail1_ang_v_flag = -1
+var g = 2.8
+
 const tick = () => {
     const elapsedTime = clock.getElapsedTime();
     const deltaTime = elapsedTime - lastElapsedTime;
@@ -166,6 +184,33 @@ const tick = () => {
     //sphereMesh.rotation.z = elapsedTime
     //nail.axis.rotation.y = elapsedTime
     //setup.nail4.rotation.y -= 0.01
+
+    if(startAnimation)
+    {
+      var nail1_ang_v;
+
+      //console.log(setup.nail1.rotation.y - nail1_init_y_rotation)
+
+      if(setup.nail1.rotation.y - nail1_init_y_rotation <= 0 || setup.nail1.rotation.y - nail1_init_y_rotation >= Math.PI)
+      {
+        nail1_ang_v_flag *= -1
+      }
+
+      nail1_ang_v = nail1_ang_v_flag*Math.sqrt(nail1_init_ang_v*nail1_init_ang_v + (2*g*(Math.sin(setup.nail1.rotation.y - nail1_init_y_rotation) - Math.sin(nail1_init_ang)))/(setup.rope_length - setup.nail1_axis_radius))
+
+      //console.log(setup.nail1.rotation.y - nail1_init_y_rotation)
+      setup.nail1.rotation.y += (nail1_ang_v * deltaTime)
+
+      if(setup.nail1.rotation.y - nail1_init_y_rotation <= 0)
+      {
+        setup.nail1.rotation.y = nail1_init_y_rotation
+      }
+      if(setup.nail1.rotation.y - nail1_init_y_rotation >= Math.PI)
+      {
+        setup.nail1.rotation.y = Math.PI + nail1_init_y_rotation
+      }
+      //console.log(nail1_ang_v)
+    }
 
     // Update controls
     if(mouseCntrl.controlsEnabled)
