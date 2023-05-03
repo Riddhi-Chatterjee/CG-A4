@@ -28,14 +28,17 @@ export class Setup
         this.sphere3_geometry = new THREE.SphereGeometry(this.sphere3_radius, 40, 40);
         this.sphere3 = new THREE.Mesh(this.sphere3_geometry, this.sphere3_material);
 
+        this.floating_floor_length = 0.5;
+        this.floating_floor_breadth = 1.5;
+        this.floating_floor_depth = 0.025;
         this.floating_floor_texture = new THREE.TextureLoader().load('/textures/floating_floor.jpg');
         this.floating_floor_material = new THREE.MeshPhongMaterial({map: this.floating_floor_texture});
-        this.floating_floor_geometry = new THREE.BoxGeometry();
+        this.floating_floor_geometry = new THREE.BoxGeometry(this.floating_floor_breadth, this.floating_floor_depth, this.floating_floor_length, 80, 80, 80);
         this.floating_floor = new THREE.Mesh(this.floating_floor_geometry, this.floating_floor_material);
 
         this.floor_length = 6.0;
         this.floor_breadth = 6.0;
-        this.floor_depth = 0.025
+        this.floor_depth = 0.025;
         this.floor_texture = new THREE.TextureLoader().load('/textures/marble_floor.jpg');
         this.floor_material = new THREE.MeshPhongMaterial({map: this.floor_texture});
         this.floor_geometry = new THREE.BoxGeometry(this.floor_breadth, this.floor_depth, this.floor_length, 80, 80, 80);
@@ -57,7 +60,7 @@ export class Setup
         this.wall_geometry = new THREE.BoxGeometry(this.wall_width, this.wall_height, this.wall_length);
         this.wall = new THREE.Mesh(this.wall_geometry, this.wall_material);
 
-        this.nail1_axis_radius = 0.01
+        this.nail1_axis_radius = 0.005
         this.nail1_head_radius = 0.02
         this.nail1_axis_length = 0.04
         this.nail1_head_length = 0.005
@@ -82,15 +85,17 @@ export class Setup
         this.nail4 = (new Nail([0.0,0.0,0.0], this.nail4_axis_radius, this.nail4_head_radius, this.nail4_axis_length, this.nail4_head_length, [1.0,1.0,1.0])).axis
 
         this.rod_radius = 0.01
-        this.rod_height = 0.5
+        this.rod_height = 0.75
         this.rod_texture = new THREE.TextureLoader().load('/textures/rod_cuboid.jpg');
         this.rod_material = new THREE.MeshPhongMaterial({map: this.rod_texture});
         this.rod_geometry = new THREE.CylinderGeometry(this.rod_radius, this.rod_radius, this.rod_height, 40, 40);
         this.rod = new THREE.Mesh(this.rod_geometry, this.rod_material);
 
+        this.rope_radius = 0.005
+        this.rope_length = 1
         this.rope_texture = new THREE.TextureLoader().load('/textures/rope.jpg');
-        this.rope_material = new THREE.MeshPhongMaterial({map: this.rope_texture});
-        this.rope_geometry = new THREE.CylinderGeometry();
+        this.rope_material = new THREE.MeshPhongMaterial({map: this.rope_texture, emissive: 0xffffff, emissiveIntensity: 0.05});
+        this.rope_geometry = new THREE.CylinderGeometry(this.rope_radius, this.rope_radius, this.rope_length, 40, 40);
         this.rope = new THREE.Mesh(this.rope_geometry, this.rope_material);
 
         this.setPosOri();
@@ -121,6 +126,25 @@ export class Setup
         this.rod.rotation.x = Math.PI/2
         this.rod.position.z = this.nail2_axis_radius - this.rod_height/2
 
+        this.floating_floor.position.set(0.6*(this.floor_breadth/2), -1.0 + this.sphere3_radius + this.vert_box_height + this.floor_depth/2, 0.0)
+        this.floating_floor.position.y += 2*(this.rod_height - this.nail2_axis_radius) - this.floating_floor_depth/2 - 2*this.sphere2_radius
+        this.floating_floor.position.x -= (this.floating_floor_breadth/2 - this.sphere3_radius)
+
+        this.sphere2.position.set(this.sphere2_radius - this.floating_floor_breadth/2, this.sphere2_radius + this.floating_floor_depth/2)
+
+        this.nail1.rotation.x = Math.PI/2
+        this.nail1.position.set(0.6*(this.floor_breadth/2), -1.0 + this.sphere3_radius + this.vert_box_height + this.floor_depth/2, 0.0)
+        this.nail1.position.y += 2*(this.rod_height - this.nail2_axis_radius) - this.floating_floor_depth/2 - 2*this.sphere2_radius
+        this.nail1.position.x -= (this.floating_floor_breadth/2 - this.sphere3_radius)
+        this.nail1.position.y += (this.rope_length - this.nail1_axis_radius + this.floating_floor_depth/2 + this.sphere2_radius)
+        this.nail1.position.x -= (this.floating_floor_breadth/2 + this.sphere1_radius)
+        this.nail1.rotation.y = -Math.PI/2
+
+        this.rope.rotation.x = -Math.PI/2
+        this.rope.position.set(0.0, 0.0, this.rope_length/2 - this.nail1_axis_radius)
+
+        this.sphere1.position.set(0.0, -this.rope_length/2, 0.0)
+
     }
 
     addDependencies()
@@ -142,7 +166,16 @@ export class Setup
         this.animationSetup.add(this.nail2);
 
         this.nail2.add(this.rod);
-        
+
+        this.animationSetup.add(this.floating_floor);
+
+        this.floating_floor.add(this.sphere2);
+
+        this.animationSetup.add(this.nail1);
+
+        this.nail1.add(this.rope);
+
+        this.rope.add(this.sphere1);
     }
 
 }
