@@ -100,23 +100,6 @@ export class Setup
 
         this.setPosOri();
         this.addDependencies();
-
-        //############################ Prototype code start ################################
-
-        this.sphere1_BB = new THREE.Sphere(this.sphere1.position, this.sphere1_radius)
-        this.sphere2_BB = new THREE.Sphere(this.sphere2.position, this.sphere2_radius)
-        this.sphere3_BB = new THREE.Sphere(this.sphere3.position, this.sphere3_radius)
-
-        this.rope.add(this.sphere1_BB)
-        this.floating_floor.add(this.sphere2_BB)
-        this.animationSetup.add(this.sphere3_BB)
-
-        //var helper = new THREE.BoundingBoxHelper(<someobject>, 0xff0000);
-        //helper.update();
-//
-        //this.<parent_object_in_scene_graph>.add(helper)
-
-        //############################ Prototype code end ################################
     }
 
     setPosOri()

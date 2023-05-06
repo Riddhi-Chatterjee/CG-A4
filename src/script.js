@@ -174,6 +174,7 @@ var nail1_init_ang = 0
 var nail1_init_ang_v = 0.001
 var nail1_ang_v_flag = -1
 var g = 2.8
+var sph1_col_flag = false
 
 const tick = () => {
     const elapsedTime = clock.getElapsedTime();
@@ -191,7 +192,7 @@ const tick = () => {
 
       //console.log(setup.nail1.rotation.y - nail1_init_y_rotation)
 
-      if(setup.nail1.rotation.y - nail1_init_y_rotation <= 0 || setup.nail1.rotation.y - nail1_init_y_rotation >= Math.PI)
+      if((setup.nail1.rotation.y - nail1_init_y_rotation).toFixed(6) <= nail1_init_ang.toFixed(6) || (setup.nail1.rotation.y - nail1_init_y_rotation).toFixed(6) >= (Math.PI - nail1_init_ang).toFixed(6))
       {
         nail1_ang_v_flag *= -1
       }
@@ -209,6 +210,40 @@ const tick = () => {
       {
         setup.nail1.rotation.y = Math.PI + nail1_init_y_rotation
       }
+      if(!sph1_col_flag)
+      {
+        if(setup.nail1.rotation.y - nail1_init_y_rotation >= Math.PI/2) //For Sphere1 collision
+        {
+          setup.nail1.rotation.y = Math.PI/2 + nail1_init_y_rotation
+        }
+      }
+
+      if(setup.nail1.rotation.y - nail1_init_y_rotation == Math.PI/2 && nail1_ang_v/Math.abs(nail1_ang_v) == 1)
+      {
+        if(!sph1_col_flag)
+        {
+          //console.log("Triggered")
+          nail1_ang_v_flag *= -1
+          nail1_init_ang += 0.3
+          sph1_col_flag = true
+        }
+      }
+      if(setup.nail1.rotation.y - nail1_init_y_rotation >= Math.PI/2 - 0.1 && setup.nail1.rotation.y - nail1_init_y_rotation <= Math.PI/2 + 0.1)
+      {
+        var factor = 0.02
+        nail1_init_ang  = Math.min(Math.PI/2, nail1_init_ang + factor*(Math.PI/2 - nail1_init_ang))
+        console.log(nail1_init_ang)
+      }
+
+      if(setup.nail1.rotation.y - nail1_init_y_rotation - nail1_init_ang <= 0)
+      {
+        setup.nail1.rotation.y = nail1_init_y_rotation + nail1_init_ang
+      }
+      if(setup.nail1.rotation.y - nail1_init_y_rotation >= Math.PI - nail1_init_ang)
+      {
+        setup.nail1.rotation.y = nail1_init_y_rotation + Math.PI - nail1_init_ang
+      }
+
       //console.log(nail1_ang_v)
     }
 
