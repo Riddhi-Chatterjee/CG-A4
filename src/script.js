@@ -184,6 +184,13 @@ var nail2_init_ang_v = 0.001
 var nail2_ang_v_flag = -1
 var alt_flag = 0
 
+var nail4_init_y_rotation = setup.nail4.rotation.y
+setup.nail4.rotation.y = -1*setup.nail4.rotation.y
+nail4_init_y_rotation = -1*nail4_init_y_rotation
+var nail4_init_ang = 0
+var nail4_init_ang_v = 0.001
+var nail4_ang_v_flag = -1
+
 var g = 2.8
 var sph1_col_flag = false
 var sphere2_v;
@@ -199,6 +206,7 @@ var stp_flag_h = false
 var startAnimation2 = false
 var startAnimation3 = false
 var startAnimation4 = false
+var startAnimation5 = false
 
 const tick = () => {
     const elapsedTime = clock.getElapsedTime();
@@ -407,16 +415,20 @@ const tick = () => {
 
           //Horizontal velocity reduction and rotation
           sphere3_v_h += (h_a * deltaTime)
+          sphere3_ang_v = -1*(sphere3_v_h/setup.sphere3_radius)
         }
 
         if(setup.sphere3.position.x == 0.6*(setup.floor_breadth/2) - setup.sphere3_radius - setup.vert_box_width/2)
         {
           sphere3_v_h = -1 * vert_box_e * sphere3_v_h
+          sphere3_ang_v = -1*(sphere3_v_v/setup.sphere3_radius)
+          startAnimation5 = true
         }
 
         if(setup.sphere3.position.x == -0.8*(setup.floor_breadth/2) + setup.sphere3_radius + setup.wall_width/2)
         {
           sphere3_v_h = -1 * wall_e * sphere3_v_h
+          sphere3_ang_v = (sphere3_v_v/setup.sphere3_radius)
         }
 
         sphere3_v_v += (v_a * deltaTime)
@@ -429,8 +441,15 @@ const tick = () => {
         {
           sphere3_v_h = 0
         }
+        
+        if(sphere3_ang_v.toFixed(1) == 0.0)
+        {
+          sphere3_ang_v = 0
+        }
+
         setup.sphere3.position.y += (sphere3_v_v * deltaTime)
         setup.sphere3.position.x += (sphere3_v_h * deltaTime)
+        setup.sphere3.rotation.z += (sphere3_ang_v * deltaTime)
 
         //Required poximity sensors:
         //x --> 0.6*(setup.floor_breadth/2) - setup.sphere3_radius - setup.vert_box_width/2
@@ -461,6 +480,68 @@ const tick = () => {
         {
           stp_flag_h = true
         }
+
+      }
+
+      if(startAnimation5)
+      {
+        setup.nail4.rotation.y = -1*setup.nail4.rotation.y
+        nail4_init_y_rotation = -1*nail4_init_y_rotation
+
+        var nail4_ang_v;
+
+        //console.log(nail4_init_ang)
+
+        //console.log(setup.nail4.rotation.y - nail4_init_y_rotation)
+
+        //console.log((setup.nail4.rotation.y - nail4_init_y_rotation).toFixed(12))
+        //console.log(nail4_init_ang.toFixed(12))
+        //console.log(alt_flag2)
+        if((setup.nail4.rotation.y - nail4_init_y_rotation).toFixed(12) <= nail4_init_ang.toFixed(12))
+        {
+          nail4_ang_v_flag *= -1
+        }
+
+        //console.log(nail4_ang_v_flag)
+        nail4_ang_v = nail4_ang_v_flag*Math.sqrt(nail4_init_ang_v*nail4_init_ang_v - (2*g*(Math.cos(setup.nail4.rotation.y - nail4_init_y_rotation) - Math.cos(nail4_init_ang)))/(setup.vert_box_height - setup.nail4_axis_radius))
+        //console.log(nail4_ang_v)
+
+        //console.log(setup.nail4.rotation.y - nail4_init_y_rotation)
+        setup.nail4.rotation.y += (nail4_ang_v * deltaTime)
+
+        if(setup.nail4.rotation.y - nail4_init_y_rotation <= 0)
+        {
+          setup.nail4.rotation.y = nail4_init_y_rotation
+        }
+        if(setup.nail4.rotation.y - nail4_init_y_rotation >= 2*Math.PI)
+        {
+          setup.nail4.rotation.y = 2*Math.PI + nail4_init_y_rotation
+        }
+
+        if(setup.nail4.rotation.y - nail4_init_y_rotation >= Math.PI/2) //For vert_box collision
+        {
+          setup.nail4.rotation.y = Math.PI/2 + nail4_init_y_rotation
+        }
+
+        if(setup.nail4.rotation.y - nail4_init_y_rotation == Math.PI/2 && nail4_ang_v/Math.abs(nail4_ang_v) == 1)
+        {
+          //console.log("Triggered")
+          nail4_ang_v_flag *= -1
+          //console.log(setup.nail4.rotation.y - nail4_init_y_rotation )
+          nail4_init_ang = Math.min(Math.PI/2, nail4_init_ang + 0.8*(Math.PI/2 - nail4_init_ang))
+        }
+
+        if(setup.nail4.rotation.y - nail4_init_y_rotation - nail4_init_ang <= 0)
+        {
+          setup.nail4.rotation.y = nail4_init_y_rotation + nail4_init_ang
+        }
+        if(setup.nail4.rotation.y - nail4_init_y_rotation >= 2*Math.PI - nail4_init_ang)
+        {
+          setup.nail4.rotation.y = nail4_init_y_rotation + 2*Math.PI - nail4_init_ang
+        }
+
+        setup.nail4.rotation.y = -1*setup.nail4.rotation.y
+        nail4_init_y_rotation = -1*nail4_init_y_rotation
 
       }
 
