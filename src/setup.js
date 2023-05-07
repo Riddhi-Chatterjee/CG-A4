@@ -176,6 +176,8 @@ export class Setup
         this.nail1.add(this.rope);
 
         this.rope.add(this.sphere1);
+
+        //this.sphere2.add(AxesHelper)
     }
 
 }

@@ -171,10 +171,31 @@ let lastElapsedTime = 0;
 
 var nail1_init_y_rotation = setup.nail1.rotation.y
 var nail1_init_ang = 0
+var nail1_init_ang_aft_s12_coll = 0
 var nail1_init_ang_v = 0.001
 var nail1_ang_v_flag = -1
+
+var nail2_init_y_rotation = setup.nail2.rotation.y
+setup.nail2.rotation.y = -1*setup.nail2.rotation.y
+nail2_init_y_rotation = -1*nail2_init_y_rotation
+var nail2_init_ang = 0
+var nail2_init_ang_aft_rs3_coll = 0
+var nail2_init_ang_v = 0.001
+var nail2_ang_v_flag = -1
+var alt_flag = 0
+
 var g = 2.8
 var sph1_col_flag = false
+var sphere2_v;
+var sphere2_ang_v;
+
+var sph3_col_flag = false
+var sphere3_v;
+var sphere3_ang_v;
+
+var startAnimation2 = false
+var startAnimation3 = false
+var startAnimation4 = false
 
 const tick = () => {
     const elapsedTime = clock.getElapsedTime();
@@ -225,14 +246,146 @@ const tick = () => {
           //console.log("Triggered")
           nail1_ang_v_flag *= -1
           nail1_init_ang += 0.3
+          nail1_init_ang_aft_s12_coll = nail1_init_ang
           sph1_col_flag = true
+          startAnimation2 = true
+
+          var m_p = 1;
+          var m_s = 20;
+          var r_p = setup.rope_length - setup.nail1_axis_radius;
+          var r_s = setup.sphere2_radius;
+
+          //After considering moment of inertia of solid sphere etc...
+          sphere2_v = Math.sqrt((10*m_p*g*r_p*Math.sin(nail1_init_ang_aft_s12_coll))/(7*m_s))
         }
       }
+
+      if(startAnimation2)
+      {
+        var r_s = setup.sphere2_radius;
+        var retard = 0.02;
+
+        sphere2_v  = Math.max(0, sphere2_v - (retard * deltaTime))
+        sphere2_ang_v = sphere2_v/r_s
+
+        setup.sphere2.position.x += (sphere2_v * deltaTime)
+
+        if(setup.sphere2.position.x >= setup.floating_floor_breadth/2 - setup.sphere2_radius)
+        {
+          setup.sphere2.position.x = setup.floating_floor_breadth/2 - setup.sphere2_radius
+        }
+        else
+        {
+          setup.sphere2.rotation.z -= (sphere2_ang_v * deltaTime)
+        }
+
+        if(setup.sphere2.position.x >= setup.floating_floor_breadth/2 - setup.sphere2_radius)
+        {
+          if(!startAnimation3)
+          {
+            startAnimation3 = true
+          }
+        }
+      }
+
+      if(startAnimation3)
+      {
+
+        setup.nail2.rotation.y = -1*setup.nail2.rotation.y
+        nail2_init_y_rotation = -1*nail2_init_y_rotation
+
+        var nail2_ang_v;
+
+        //console.log(setup.nail2.rotation.y - nail2_init_y_rotation)
+
+        //console.log((setup.nail2.rotation.y - nail2_init_y_rotation).toFixed(12))
+        //console.log(nail2_init_ang.toFixed(12))
+        //console.log(alt_flag)
+        if(alt_flag == 0)
+        {
+          if((setup.nail2.rotation.y - nail2_init_y_rotation).toFixed(12) <= nail2_init_ang.toFixed(12))
+          {
+            nail2_ang_v_flag *= -1
+            alt_flag = 1
+          }
+        }
+        else if(alt_flag == 1)
+        {
+          if((setup.nail2.rotation.y - nail2_init_y_rotation).toFixed(12) >= (2*Math.PI - nail2_init_ang).toFixed(12))
+          {
+            nail2_ang_v_flag *= -1
+            alt_flag = 0
+          }
+        }
+
+        //console.log(nail2_ang_v_flag)
+        nail2_ang_v = nail2_ang_v_flag*Math.sqrt(nail2_init_ang_v*nail2_init_ang_v - (2*g*(Math.cos(setup.nail2.rotation.y - nail2_init_y_rotation) - Math.cos(nail2_init_ang)))/(setup.rod_height - setup.nail2_axis_radius))
+        //console.log(nail2_ang_v)
+
+        //console.log(setup.nail2.rotation.y - nail2_init_y_rotation)
+        setup.nail2.rotation.y += (nail2_ang_v * deltaTime)
+
+        if(setup.nail2.rotation.y - nail2_init_y_rotation <= 0)
+        {
+          setup.nail2.rotation.y = nail2_init_y_rotation
+        }
+        if(setup.nail2.rotation.y - nail2_init_y_rotation >= 2*Math.PI)
+        {
+          setup.nail2.rotation.y = 2*Math.PI + nail2_init_y_rotation
+        }
+        //if(!sph3_col_flag)
+        //{
+        //  if(setup.nail2.rotation.y - nail2_init_y_rotation >= Math.PI) //For rod collision
+        //  {
+        //    setup.nail2.rotation.y = Math.PI + nail2_init_y_rotation
+        //  }
+        //}
+
+        if(setup.nail2.rotation.y - nail2_init_y_rotation >= Math.PI && nail2_ang_v/Math.abs(nail2_ang_v) == 1)
+        {
+          if(!sph3_col_flag)
+          {
+            //console.log("Triggered")
+            //nail2_ang_v_flag *= -1
+            //console.log(setup.nail2.rotation.y - nail2_init_y_rotation )
+            nail2_init_ang += 1
+            nail2_init_ang_aft_rs3_coll = nail2_init_ang
+            sph3_col_flag = true
+            startAnimation4 = true
+          }
+        }
+
+        if(setup.nail2.rotation.y - nail2_init_y_rotation >= Math.PI - 0.1 && setup.nail2.rotation.y - nail2_init_y_rotation <= Math.PI + 0.1)
+        {
+          var factor = 0.02
+          nail2_init_ang  = Math.min(Math.PI, nail2_init_ang + factor*(Math.PI - nail2_init_ang))
+          //console.log(nail2_init_ang)
+        }
+
+        if(setup.nail2.rotation.y - nail2_init_y_rotation - nail2_init_ang <= 0)
+        {
+          setup.nail2.rotation.y = nail2_init_y_rotation + nail2_init_ang
+        }
+        if(setup.nail2.rotation.y - nail2_init_y_rotation >= 2*Math.PI - nail2_init_ang)
+        {
+          setup.nail2.rotation.y = nail2_init_y_rotation + 2*Math.PI - nail2_init_ang
+        }
+
+        setup.nail2.rotation.y = -1*setup.nail2.rotation.y
+        nail2_init_y_rotation = -1*nail2_init_y_rotation
+
+      }
+
+      if(startAnimation4)
+      {
+
+      }
+
       if(setup.nail1.rotation.y - nail1_init_y_rotation >= Math.PI/2 - 0.1 && setup.nail1.rotation.y - nail1_init_y_rotation <= Math.PI/2 + 0.1)
       {
         var factor = 0.02
         nail1_init_ang  = Math.min(Math.PI/2, nail1_init_ang + factor*(Math.PI/2 - nail1_init_ang))
-        console.log(nail1_init_ang)
+        //console.log(nail1_init_ang)
       }
 
       if(setup.nail1.rotation.y - nail1_init_y_rotation - nail1_init_ang <= 0)
