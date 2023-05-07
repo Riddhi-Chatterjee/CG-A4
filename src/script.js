@@ -32,6 +32,17 @@ const gui = new dat.GUI();
 
 var animation_focus;
 
+function setCam(cam, object)
+{
+  const objectPosition = new THREE.Vector3();
+  object.getWorldPosition(objectPosition);
+
+  cam.position.x = objectPosition.x + 0.3
+  cam.position.y = objectPosition.y + 0.3
+  cam.position.z = objectPosition.z + 0.4
+  cam.lookAt(objectPosition)
+}
+
 const sizes = {
   width: window.innerWidth,
   height: window.innerHeight,
@@ -116,15 +127,15 @@ let mouseCntrl = {
   "FixedSpotlight": true,
   "MovingSpotlight": true
 }
-let controls;
+let controls1;
 gui.add(mouseCntrl, "controlsEnabled").name("Enable Controls");
 gui.add(mouseCntrl, "PointLight").name("Point Light")
 gui.add(mouseCntrl, "FixedSpotlight").name("Fixed Spotlight")
 gui.add(mouseCntrl, "MovingSpotlight").name("Moving Spotlight")
 
-controls = new OrbitControls(camera, canvas);
-controls.enableDamping = true;
-controls.enabled = true;
+controls1 = new OrbitControls(camera1, canvas);
+controls1.enableDamping = true;
+controls1.enabled = true;
 
 const AxesHelper = new THREE.AxesHelper();
 //scene.add(AxesHelper);
@@ -133,7 +144,7 @@ const setup = new Setup();
 scene.add(setup.animationSetup)
 spotlight_fixed.target = setup.floor;
 animation_focus = setup.sphere1
-
+setCam(camera2, animation_focus)
 
 
 
@@ -147,7 +158,21 @@ document.addEventListener("keydown", event => {
 
   if(event.key == 'c') //Switch between camera modes
   {
-
+    if(camera_mode == 0)
+    {
+      scene.remove(camera1)
+      
+      setCam(camera2, animation_focus)
+      scene.add(camera2)
+      
+      camera_mode = 1
+    }
+    else if(camera_mode == 1)
+    {
+      scene.remove(camera2)
+      scene.add(camera1)
+      camera_mode = 0
+    }
   }
 })
 
@@ -261,6 +286,7 @@ const tick = () => {
       var nail1_ang_v;
 
       animation_focus = setup.sphere1
+      setCam(camera2, animation_focus)
 
       //console.log(setup.nail1.rotation.y - nail1_init_y_rotation)
 
@@ -314,6 +340,7 @@ const tick = () => {
       if(startAnimation2)
       {
         animation_focus = setup.sphere2
+        setCam(camera2, animation_focus)
 
         var r_s = setup.sphere2_radius;
         var retard = 0.02;
@@ -344,6 +371,7 @@ const tick = () => {
       if(startAnimation3)
       {
         animation_focus = setup.rod
+        setCam(camera2, animation_focus)
 
         setup.nail2.rotation.y = -1*setup.nail2.rotation.y
         nail2_init_y_rotation = -1*nail2_init_y_rotation
@@ -443,6 +471,7 @@ const tick = () => {
       if(startAnimation4)
       {
         animation_focus = setup.sphere3
+        setCam(camera2, animation_focus)
 
         //Vertical and horizontal accelerations
         var v_a = -1*g
@@ -531,6 +560,7 @@ const tick = () => {
       if(startAnimation5)
       {
         animation_focus = setup.vert_box
+        setCam(camera2, animation_focus)
 
         setup.nail4.rotation.y = -1*setup.nail4.rotation.y
         nail4_init_y_rotation = -1*nail4_init_y_rotation
@@ -616,15 +646,22 @@ const tick = () => {
     // Update controls
     if(mouseCntrl.controlsEnabled)
     {
-        controls.enabled = true;
-        controls.update();
+        controls1.enabled = true;
+        controls1.update();
     } else 
     {
-        controls.enabled = false;
+        controls1.enabled = false;
     }
 
     // Render
-    renderer.render(scene, camera);
+    if(camera_mode == 0)
+    {
+      renderer.render(scene, camera1);
+    }
+    else
+    {
+      renderer.render(scene, camera2);
+    }
 
     // Call tick again on the next frame
     window.requestAnimationFrame(tick);
