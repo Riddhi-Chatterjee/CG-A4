@@ -1,3 +1,19 @@
+/*
+
+Use key 's' to start the animation
+Use key 'c' to switch between the camera modes
+Use GUI buttons to toggle lights on/off
+
+Lighting:
+* A point source at a fixed location and illuminating the entire scene --> White color
+* A directional spotlight fixed at a certain height on one side of the scene and lighting the
+  middle of the scene --> Yellow color
+* A moving spotlight that follows the object that is currently moving (the focus of the
+  animation at that point) --> Red color
+
+*/
+
+
 import "./style.css";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -14,6 +30,8 @@ const scene = new THREE.Scene();
 
 const gui = new dat.GUI();
 
+var animation_focus;
+
 const sizes = {
   width: window.innerWidth,
   height: window.innerHeight,
@@ -24,78 +42,85 @@ const sizes = {
  * Camera
  */
 // Base camera
-const camera = new THREE.PerspectiveCamera(
+var camera_mode = 0
+
+const camera1 = new THREE.PerspectiveCamera(
   75,
   sizes.width / sizes.height,
   0.001,
   100
 );
-camera.position.x = 0;
-camera.position.y = 0;
-camera.position.z = 3.5;
-scene.add(camera);
+camera1.position.x = 0;
+camera1.position.y = 3.5;
+camera1.position.z = 0;
+//scene.add(camera1);
+
+const camera2 = new THREE.PerspectiveCamera(
+  75,
+  sizes.width / sizes.height,
+  0.001,
+  100
+);
 
 /**
  * Lights
  */
-// const ambientLight = new THREE.AmbientLight();
-// ambientLight.color = new THREE.Color(0xffffff);
-// ambientLight.intensity = 0.5;
-// scene.add(ambientLight);
 
-let bboxSphereLight, bboxTeapotLight;
-
+//Point light:
 const light1 = new THREE.PointLight( 0xffffff, 0.3, 100 );
 light1.position.set( 1, 1.25 ,0 );
 // light1.power = 10000;
 // light1.distance = 20;
 light1.castShadow = true; 
 light1.decay = 2;
-// Add bounding box
-bboxSphereLight = new THREE.Box3().setFromObject(light1);
-scene.add( light1 );
 
 const sphereSize = 1;
 const pointLightHelper1 = new THREE.PointLightHelper( light1, sphereSize );
 pointLightHelper1.color = new THREE.Color(0xffffff);
-//scene.add( pointLightHelper1 );
+//scene.add(light1)
 
-
-const light2 = new THREE.PointLight( 0xffffff, 0.3, 100 );
-light2.position.set( -1, 1.25, 0 );
-// light2.power = 10000;
-// light2.distance = 20;
-light2.decay = 2;
-light2.castShadow = true; 
-// Add bounding box
-bboxTeapotLight = new THREE.Box3().setFromObject(light2);
-scene.add( light2 );
-
-const pointLightHelper2 = new THREE.PointLightHelper( light2, sphereSize );
-pointLightHelper2.color = new THREE.Color(0xffffff);
-//scene.add( pointLightHelper2 );
-
+//Ambient light:
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.37);
-scene.add(ambientLight);
+scene.add(ambientLight)
+
+//Fixed spotlight:
+const spotlight_fixed = new THREE.SpotLight(0xe0b412);
+spotlight_fixed.position.set(-10, 10, 0);
+spotlight_fixed.castShadow = true;
+spotlight_fixed.angle = 0.1;
+//scene.add(spotlight_fixed);
+
+//Moving spotlight:
+var spotlight_moving = new THREE.SpotLight(0xff0000);
+spotlight_moving.position.set(0, 5, 3);
+spotlight_moving.castShadow = true;
+spotlight_moving.angle = 0.05;
+//scene.add(spotlight_moving)
 
 
 window.requestAnimationFrame( () => 
 {
 	pointLightHelper1.update();
-    pointLightHelper2.update();
 })
 
 gui.add(light1, 'intensity', 0, 5).name("Light1 Intensity");
-gui.add(light2, 'intensity', 0, 5).name("Light2 Intensity");
+gui.add(spotlight_fixed, 'intensity', 0, 10).name("Fixed_SL Intensity");
+gui.add(spotlight_moving, 'intensity', 0, 10).name("Moving_SL Intensity");
 gui.add(ambientLight, 'intensity', 0, 5).name("Ambient Light Intensity");
 
 
 // Controls
 let mouseCntrl = {
-  "controlsEnabled": true
+  "controlsEnabled": true,
+  "PointLight": true,
+  "FixedSpotlight": true,
+  "MovingSpotlight": true
 }
 let controls;
 gui.add(mouseCntrl, "controlsEnabled").name("Enable Controls");
+gui.add(mouseCntrl, "PointLight").name("Point Light")
+gui.add(mouseCntrl, "FixedSpotlight").name("Fixed Spotlight")
+gui.add(mouseCntrl, "MovingSpotlight").name("Moving Spotlight")
 
 controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
@@ -104,30 +129,10 @@ controls.enabled = true;
 const AxesHelper = new THREE.AxesHelper();
 //scene.add(AxesHelper);
 
-// load a torus geometry
-//const torusmaterial = new THREE.MeshPhongMaterial();
-//const torusgeometry = new THREE.TorusGeometry( 1, 0.5, 16, 100 );
-//var  torusMesh = new THREE.Mesh(torusgeometry, torusmaterial);
-//torusMesh.position.set(1,1,0);
-//torusMesh.scale.set(0.3,0.3,0.3);
-//scene.add(torusMesh);
-
-//load a sphere:
-
-//const texture = new THREE.TextureLoader().load('/textures/sphere.jpg'); 
-//const spherematerial = new THREE.MeshPhongMaterial( { map:texture } );
-//const spheregeometry = new THREE.CylinderGeometry(0.7, 0.7, 4, 100, 100);
-//const sphereMesh = new THREE.Mesh(spheregeometry, spherematerial);
-//sphereMesh.position.set(0,0,0);
-//sphereMesh.scale.set(0.3,0.3,0.3);
-//sphereMesh.add(AxesHelper)
-//scene.add(sphereMesh)
-
-//const nail = new Nail([0.0,0.0,0.0], 0.01, 0.015, 0.02, 0.005, [1.0,1.0,1.0])
-//scene.add(nail.axis)
-
 const setup = new Setup();
 scene.add(setup.animationSetup)
+spotlight_fixed.target = setup.floor;
+animation_focus = setup.sphere1
 
 
 
@@ -138,6 +143,11 @@ document.addEventListener("keydown", event => {
   if (event.key == "s") //Start the animation
   {
     startAnimation = true
+  }
+
+  if(event.key == 'c') //Switch between camera modes
+  {
+
   }
 })
 
@@ -209,6 +219,34 @@ var startAnimation4 = false
 var startAnimation5 = false
 
 const tick = () => {
+
+    if(mouseCntrl.PointLight)
+    {
+      scene.add(light1)
+    }
+    else
+    {
+      scene.remove(light1)
+    }
+
+    if(mouseCntrl.FixedSpotlight)
+    {
+      scene.add(spotlight_fixed)
+    }
+    else
+    {
+      scene.remove(spotlight_fixed)
+    }
+
+    if(mouseCntrl.MovingSpotlight)
+    {
+      scene.add(spotlight_moving)
+    }
+    else
+    {
+      scene.remove(spotlight_moving)
+    }
+
     const elapsedTime = clock.getElapsedTime();
     const deltaTime = elapsedTime - lastElapsedTime;
     lastElapsedTime = elapsedTime;
@@ -221,6 +259,8 @@ const tick = () => {
     if(startAnimation)
     {
       var nail1_ang_v;
+
+      animation_focus = setup.sphere1
 
       //console.log(setup.nail1.rotation.y - nail1_init_y_rotation)
 
@@ -273,6 +313,8 @@ const tick = () => {
 
       if(startAnimation2)
       {
+        animation_focus = setup.sphere2
+
         var r_s = setup.sphere2_radius;
         var retard = 0.02;
 
@@ -301,6 +343,7 @@ const tick = () => {
 
       if(startAnimation3)
       {
+        animation_focus = setup.rod
 
         setup.nail2.rotation.y = -1*setup.nail2.rotation.y
         nail2_init_y_rotation = -1*nail2_init_y_rotation
@@ -399,6 +442,8 @@ const tick = () => {
 
       if(startAnimation4)
       {
+        animation_focus = setup.sphere3
+
         //Vertical and horizontal accelerations
         var v_a = -1*g
         var h_a = -0.1
@@ -485,6 +530,8 @@ const tick = () => {
 
       if(startAnimation5)
       {
+        animation_focus = setup.vert_box
+
         setup.nail4.rotation.y = -1*setup.nail4.rotation.y
         nail4_init_y_rotation = -1*nail4_init_y_rotation
 
@@ -563,6 +610,8 @@ const tick = () => {
 
       //console.log(nail1_ang_v)
     }
+
+    spotlight_moving.target = animation_focus
 
     // Update controls
     if(mouseCntrl.controlsEnabled)
