@@ -308,7 +308,7 @@ const tick = () => {
     }
 
     const elapsedTime = clock.getElapsedTime();
-    const deltaTime = elapsedTime - lastElapsedTime;
+    const deltaTime = Math.min(elapsedTime - lastElapsedTime, 0.04);
     lastElapsedTime = elapsedTime;
 
     //torusMesh.rotation.y = elapsedTime
