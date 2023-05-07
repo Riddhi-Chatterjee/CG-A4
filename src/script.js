@@ -1,8 +1,15 @@
 /*
 
-Use key 's' to start the animation
-Use key 'c' to switch between the camera modes
-Use GUI buttons to toggle lights on/off
+Instructions to run:
+--> npm install
+--> npm run dev
+
+Instructions regarding keyboard and mouse controls:
+--> Use key 's' to start the animation
+--> Use key 'c' to switch between the camera modes
+--> Use GUI buttons to toggle lights on/off
+--> Use the ArrowLeft and ArrowRight keys to rotate the camera about "its vertical axis" (i.e. "its y-axis")
+    while it follows the (translation) motion of the object
 
 Lighting:
 * A point source at a fixed location and illuminating the entire scene --> White color
@@ -10,6 +17,7 @@ Lighting:
   middle of the scene --> Yellow color
 * A moving spotlight that follows the object that is currently moving (the focus of the
   animation at that point) --> Red color
+* Ambient lighting --> White color
 
 */
 
@@ -37,9 +45,16 @@ function setCam(cam, object)
   const objectPosition = new THREE.Vector3();
   object.getWorldPosition(objectPosition);
 
-  cam.position.x = objectPosition.x + 0.3
-  cam.position.y = objectPosition.y + 0.3
+  cam.position.x = objectPosition.x + 0.4
+  cam.position.y = objectPosition.y + 0.4
   cam.position.z = objectPosition.z + 0.4
+}
+
+function orientCam(cam, object)
+{
+  const objectPosition = new THREE.Vector3();
+  object.getWorldPosition(objectPosition);
+
   cam.lookAt(objectPosition)
 }
 
@@ -72,6 +87,7 @@ const camera2 = new THREE.PerspectiveCamera(
   0.001,
   100
 );
+camera2.rotation.y = 0
 
 /**
  * Lights
@@ -145,6 +161,7 @@ scene.add(setup.animationSetup)
 spotlight_fixed.target = setup.floor;
 animation_focus = setup.sphere1
 setCam(camera2, animation_focus)
+orientCam(camera2, animation_focus)
 
 
 
@@ -172,6 +189,24 @@ document.addEventListener("keydown", event => {
       scene.remove(camera2)
       scene.add(camera1)
       camera_mode = 0
+    }
+  }
+
+  if (event.key == "ArrowLeft") //Rotating camera2 about its vertical axis while following the moving object
+  {
+    if(camera_mode == 1)
+    {
+      var factor = 0.1
+      camera2.rotation.y += factor
+    }
+  }
+
+  if (event.key == "ArrowRight") //Rotating camera2 about its vertical axis while following the moving object
+  {
+    if(camera_mode == 1)
+    {
+      var factor = -0.1
+      camera2.rotation.y += factor
     }
   }
 })
@@ -326,6 +361,7 @@ const tick = () => {
           nail1_init_ang_aft_s12_coll = nail1_init_ang
           sph1_col_flag = true
           startAnimation2 = true
+          orientCam(camera2, setup.sphere2)
 
           var m_p = 1;
           var m_s = 20;
@@ -364,6 +400,7 @@ const tick = () => {
           if(!startAnimation3)
           {
             startAnimation3 = true
+            orientCam(camera2, setup.rod)
           }
         }
       }
@@ -434,6 +471,7 @@ const tick = () => {
             nail2_init_ang_aft_rs3_coll = nail2_init_ang
             sph3_col_flag = true
             startAnimation4 = true
+            orientCam(camera2, setup.sphere3)
 
             var m_r = 1;
             var m_s = 0.4;
@@ -496,7 +534,11 @@ const tick = () => {
         {
           sphere3_v_h = -1 * vert_box_e * sphere3_v_h
           sphere3_ang_v = -1*(sphere3_v_v/setup.sphere3_radius)
-          startAnimation5 = true
+          if(!startAnimation5)
+          {
+            startAnimation5 = true
+            orientCam(camera2, setup.vert_box)
+          }
         }
 
         if(setup.sphere3.position.x == -0.8*(setup.floor_breadth/2) + setup.sphere3_radius + setup.wall_width/2)
