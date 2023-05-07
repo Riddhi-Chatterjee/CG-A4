@@ -190,8 +190,11 @@ var sphere2_v;
 var sphere2_ang_v;
 
 var sph3_col_flag = false
-var sphere3_v;
-var sphere3_ang_v;
+var sphere3_v_h = 0;
+var sphere3_v_v = 0;
+var sphere3_ang_v = 0;
+var stp_flag_v = false
+var stp_flag_h = false
 
 var startAnimation2 = false
 var startAnimation3 = false
@@ -352,6 +355,16 @@ const tick = () => {
             nail2_init_ang_aft_rs3_coll = nail2_init_ang
             sph3_col_flag = true
             startAnimation4 = true
+
+            var m_r = 1;
+            var m_s = 0.4;
+            var r_r = setup.rod_height - setup.nail2_axis_radius;
+            var r_s = setup.sphere3_radius;
+
+            //After considering moment of inertia of solid sphere etc...
+            sphere3_v_h = -1*Math.sqrt((10*m_r*g*r_r*Math.sin(nail1_init_ang_aft_s12_coll))/(7*m_s))
+            sphere3_v_v = 0
+            sphere3_ang_v = 0
           }
         }
 
@@ -378,6 +391,76 @@ const tick = () => {
 
       if(startAnimation4)
       {
+        //Vertical and horizontal accelerations
+        var v_a = -1*g
+        var h_a = -0.1
+
+        //Coefficient of restitution:
+        var wall_e = 0.5
+        var floor_e = 0.99
+        var vert_box_e = 0.5
+
+        if(setup.sphere3.position.y == setup.floor.position.y + setup.sphere3_radius+ setup.floor_depth/2)
+        {
+          //Bounce
+          sphere3_v_v = -1 * floor_e * sphere3_v_v
+
+          //Horizontal velocity reduction and rotation
+          sphere3_v_h += (h_a * deltaTime)
+        }
+
+        if(setup.sphere3.position.x == 0.6*(setup.floor_breadth/2) - setup.sphere3_radius - setup.vert_box_width/2)
+        {
+          sphere3_v_h = -1 * vert_box_e * sphere3_v_h
+        }
+
+        if(setup.sphere3.position.x == -0.8*(setup.floor_breadth/2) + setup.sphere3_radius + setup.wall_width/2)
+        {
+          sphere3_v_h = -1 * wall_e * sphere3_v_h
+        }
+
+        sphere3_v_v += (v_a * deltaTime)
+
+        if(stp_flag_v)
+        {
+          sphere3_v_v = 0
+        }
+        if(stp_flag_h)
+        {
+          sphere3_v_h = 0
+        }
+        setup.sphere3.position.y += (sphere3_v_v * deltaTime)
+        setup.sphere3.position.x += (sphere3_v_h * deltaTime)
+
+        //Required poximity sensors:
+        //x --> 0.6*(setup.floor_breadth/2) - setup.sphere3_radius - setup.vert_box_width/2
+        //x -->  -0.8*(setup.floor_breadth/2) + setup.sphere3_radius + setup.wall_width/2
+        //y -->  setup.floor.position.y + setup.sphere3_radius+ setup.floor_depth/2
+
+        //console.log(setup.sphere3.position.y, setup.floor.position.y + setup.sphere3_radius+ setup.floor_depth/2)
+
+        if(setup.sphere3.position.x >= 0.6*(setup.floor_breadth/2) - setup.sphere3_radius - setup.vert_box_width/2 && setup.sphere3.position.y - (sphere3_v_v * deltaTime) <= -1.0 + setup.sphere3_radius + setup.vert_box_height + setup.floor_depth/2 - 0.1)
+        {
+          //console.log(setup.sphere3.position.y.toFixed(6), (-1.0 + setup.sphere3_radius + setup.vert_box_height + setup.floor_depth/2).toFixed(6))
+          setup.sphere3.position.x = 0.6*(setup.floor_breadth/2) - setup.sphere3_radius - setup.vert_box_width/2
+        }
+        if(setup.sphere3.position.x <= -0.8*(setup.floor_breadth/2) + setup.sphere3_radius + setup.wall_width/2)
+        {
+          setup.sphere3.position.x = -0.8*(setup.floor_breadth/2) + setup.sphere3_radius + setup.wall_width/2
+        }
+        if(setup.sphere3.position.y <= setup.floor.position.y + setup.sphere3_radius+ setup.floor_depth/2)
+        {
+          setup.sphere3.position.y = setup.floor.position.y + setup.sphere3_radius+ setup.floor_depth/2
+        }
+
+        if(sphere3_v_v.toFixed(1) == 0.0 && setup.sphere3.position.y == setup.floor.position.y + setup.sphere3_radius+ setup.floor_depth/2)
+        {
+          stp_flag_v = true
+        }
+        if(sphere3_v_h.toFixed(1) == 0.0)
+        {
+          stp_flag_h = true
+        }
 
       }
 

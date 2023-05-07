@@ -177,7 +177,7 @@ export class Setup
 
         this.rope.add(this.sphere1);
 
-        //this.sphere2.add(AxesHelper)
+        //this.sphere3.add(AxesHelper)
     }
 
 }
