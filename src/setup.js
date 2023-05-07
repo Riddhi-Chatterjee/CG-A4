@@ -10,7 +10,7 @@ export class Setup
     {
         this.animationSetup = new THREE.Object3D(); //Only this is to be added to the scene
 
-        this.sphere1_radius = 0.1;
+        this.sphere1_radius = 0.05;
         this.sphere1_texture = new THREE.TextureLoader().load('/textures/sphere.jpg'); 
         this.sphere1_material = new THREE.MeshPhongMaterial({map: this.sphere1_texture, emissive: 0xffffff, emissiveIntensity: 0.1});
         this.sphere1_geometry = new THREE.SphereGeometry(this.sphere1_radius, 40, 40);
