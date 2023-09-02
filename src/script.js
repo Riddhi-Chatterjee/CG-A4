@@ -1,6 +1,7 @@
 /*
 
 Instructions to run:
+--> export NODE_OPTIONS=--openssl-legacy-provider
 --> npm install
 --> npm run dev
 
@@ -261,7 +262,7 @@ var nail4_init_ang = 0
 var nail4_init_ang_v = 0.001
 var nail4_ang_v_flag = -1
 
-var g = 2.8
+var g = 3.8
 var sph1_col_flag = false
 var sphere2_v;
 var sphere2_ang_v;
